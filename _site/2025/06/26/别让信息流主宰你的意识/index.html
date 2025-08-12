@@ -33,6 +33,7 @@
 
   <body>
 
+    <!-- 页面内容开始 -->
     <div class="container pure-g"><div class="sidebar-left pure-u-1 pure-u-md-1-4" style="background-color: rgb(40, 73, 77); color: rgb(255, 255, 255); background-image: url(/bg.jpeg);"><header class="masthead">
   <div class="avatar"><img src="/avatar.jpeg" class="avatar-image" alt="原志超">
     </div>
@@ -187,6 +188,148 @@
       <div class="sidebar-right pure-u-1 pure-u-md-1-4">
 </div>
     </div>
+    <!-- 页面内容结束 -->
+
+    <!-- 悬浮音乐播放器开始 -->
+    <style>
+    #floating-player {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      background: #f5f7fa;
+      color: #333;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: move;
+      user-select: none;
+    }
+
+    #floating-player button {
+      background: #3498db;
+      border: none;
+      color: white;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s ease;
+    }
+
+    #floating-player button:hover {
+      background: #2980b9;
+    }
+
+    #floating-player select {
+      background: white;
+      border: 1px solid #ccc;
+      color: #333;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      flex-grow: 1;
+      user-select: none;
+      outline: none;
+    }
+    </style>
+
+    <div id="floating-player" aria-label="悬浮音乐播放器">
+      <button id="btn-playpause" aria-label="播放/暂停">▶️</button>
+      <select id="song-select" aria-label="选择歌曲">
+        <option value="/assets/music/qinghuaci.mp3" selected>青花瓷 - 周杰伦</option>
+        <option value="/assets/music/一路向北.mp3">一路向北 - 周杰伦</option>
+        <option value="/assets/music/夜曲.mp3">夜曲 - 周杰伦</option>
+      </select>
+      <audio id="audio-player" loop></audio>
+    </div>
+
+    <script>
+      const audio = document.getElementById('audio-player');
+      const btn = document.getElementById('btn-playpause');
+      const select = document.getElementById('song-select');
+      const player = document.getElementById('floating-player');
+
+      // 初始化
+      audio.src = select.value;
+      audio.pause();
+      btn.textContent = '▶️';
+
+      btn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          btn.textContent = '⏸️';
+        } else {
+          audio.pause();
+          btn.textContent = '▶️';
+        }
+      });
+
+      select.addEventListener('change', () => {
+        const wasPlaying = !audio.paused;
+        audio.src = select.value;
+        audio.load();
+        if (wasPlaying) {
+          audio.play();
+          btn.textContent = '⏸️';
+        } else {
+          btn.textContent = '▶️';
+        }
+      });
+
+      // 拖拽功能
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      player.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = player.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        document.body.style.userSelect = 'none';
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        document.body.style.userSelect = 'auto';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        let newLeft = initialLeft + dx;
+        let newTop = initialTop + dy;
+
+        const maxLeft = window.innerWidth - player.offsetWidth;
+        const maxTop = window.innerHeight - player.offsetHeight;
+        if (newLeft < 0) newLeft = 0;
+        if (newLeft > maxLeft) newLeft = maxLeft;
+        if (newTop < 0) newTop = 0;
+        if (newTop > maxTop) newTop = maxTop;
+
+        player.style.left = newLeft + 'px';
+        player.style.top = newTop + 'px';
+        player.style.bottom = 'auto';
+        player.style.right = 'auto';
+      });
+    </script>
+    <!-- 悬浮音乐播放器结束 -->
 
     <script async src="https://use.fontawesome.com/releases/v5.0.12/js/all.js"></script><script>
   function strip(str, remove) {
